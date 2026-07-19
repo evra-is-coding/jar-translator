@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jar Translator | The Corporate Jargon Translator</title>
+    <style>
+        :root {
+            --primary-blue: #00a0dc;
+            --dark-grey: #313335;
+            --light-grey: #cacccE;
+            --mid-grey: #86888A;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f3f2ef; 
+            color: var(--dark-grey);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        header {
+            width: 100%;
+            background-color: var(--white);
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+
+        header img {
+            max-height: 60px;
+        }
+
+        header p {
+            margin: 5px 0 0 0;
+            color: var(--mid-grey);
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 90%;
+            max-width: 900px;
+            background: var(--white);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .panels {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .panel {
+            flex: 1;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--dark-grey);
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 15px;
+            border: 1px solid var(--light-grey);
+            border-radius: 4px;
+            resize: none;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+        }
+
+        .output-box {
+            background-color: #f9fafb;
+            color: var(--dark-grey);
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        button {
+            background-color: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #008cc0;
+        }
+
+        button:disabled {
+            background-color: var(--light-grey);
+            cursor: not-allowed;
+        }
+
+        .copy-btn {
+            background-color: transparent;
+            color: var(--primary-blue);
+            border: 2px solid var(--primary-blue);
+            margin-top: 10px;
+            align-self: flex-start;
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+
+        .copy-btn:hover {
+            background-color: rgba(0, 160, 220, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <img src="logo1.png" alt="Jar Translator Logo">
+        <p>The Corporate Jargon Translator</p>
+    </header>
+
+    <div class="container">
+        <div class="panels">
+            <!-- Input Panel -->
+            <div class="panel">
+                <label for="userInput">What actually happened?</label>
+                <textarea id="userInput" placeholder="Type your text here to convert it to professional language."></textarea>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="panel">
+                <label for="aiOutput">Corporate Version</label>
+                <textarea id="aiOutput" class="output-box" readonly placeholder="Your professional text will appear here..."></textarea>
+                <button class="copy-btn" id="copyBtn" onclick="copyToClipboard()">Copy to Clipboard</button>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <button id="translateBtn" onclick="translateText()">Synergize & Transform</button>
+        </div>
+    </div>
+
+    <script>
+        // Adjust this URL if your FastAPI runs on a different port
+        const API_URL = "http://localhost:8000/translate";
+
+        async function translateText() {
+            const inputText = document.getElementById("userInput").value;
+            const outputBox = document.getElementById("aiOutput");
+            const btn = document.getElementById("translateBtn");
+
+            if (!inputText.trim()) {
+                alert("Please enter some text to translate.");
+                return;
+            }
+
+            // Loading state
+            btn.disabled = true;
+            btn.innerText = "Transforming...";
+            outputBox.value = "Generating corporate synergy...";
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ text: inputText })
+                });
+
+                if (!response.ok) {
+                    throw new Error("API responded with an error.");
+                }
+
+                const data = await response.json();
+                outputBox.value = data.translated_text;
+
+            } catch (error) {
+                console.error("Error:", error);
+                outputBox.value = "Error: Could not connect to the API. Make sure your FastAPI backend is running.";
+            } finally {
+                // Reset button state
+                btn.disabled = false;
+                btn.innerText = "Synergize & Transform";
+            }
+        }
+
+        function copyToClipboard() {
+            const outputBox = document.getElementById("aiOutput");
+            if (!outputBox.value.trim() || outputBox.value.startsWith("Error:") || outputBox.value.startsWith("Generating")) {
+                return;
+            }
+
+            outputBox.select();
+            document.execCommand("copy");
+            
+            const copyBtn = document.getElementById("copyBtn");
+            copyBtn.innerText = "Copied!";
+            setTimeout(() => copyBtn.innerText = "Copy to Clipboard", 2000);
+        }
+    </script>
+</body>
+</html>
