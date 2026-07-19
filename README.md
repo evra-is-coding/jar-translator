@@ -11,7 +11,7 @@ Jar Translator is an AI-powered web application that transforms your casual, blu
 
 * **AI-Powered Translations:** Utilizes advanced LLMs to accurately convert casual text into synergistic corporate speak.
 * **Modern & Responsive UI:** A clean, professional, and intuitive user interface.
-* **One-Click Copy:** Easily copy the generated corporate jargon to your clipboard for instant use in emails or messages.
+* **One-Click Copy:** Easily copy the generated corporate jargon to your clipboard.
 * **Fast & Reliable:** Built with a lightweight FastAPI backend for quick responses.
 
 ## Tech Stack
